@@ -1,0 +1,46 @@
+# Veröffentlicht die Pitch-Seite auf GitHub Pages (https://dinosbs.github.io/pitch/).
+# Einmalig nötig: Repository → Settings → Pages → Source: „GitHub Actions“.
+name: Pitch auf GitHub Pages veröffentlichen
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      # index.html frisch aus src/ + data/ + assets/ bauen (nur Python-Standardbibliothek)
+      - name: Seite bauen
+        run: python3 build.py
+      # Veröffentlicht wird nur die fertige, eigenständige Seite – nicht die Rohdaten
+      - name: Seite bereitstellen
+        run: |
+          mkdir _site
+          cp index.html _site/index.html
+          cp assets/ui/incent-favicon.png _site/favicon.png
+          grep -q '<meta name="robots" content="noindex, nofollow">' _site/index.html
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
