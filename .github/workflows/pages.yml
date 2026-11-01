@@ -1,5 +1,7 @@
-# Veröffentlicht die Pitch-Seite auf GitHub Pages (https://dinosbs.github.io/pitch/).
-# Einmalig nötig: Repository → Settings → Pages → Source: „GitHub Actions“.
+# Veröffentlicht die Pitch-Präsentation auf GitHub Pages:
+#   https://dinosbs.github.io/pitch/          allgemeine Fassung (index.html)
+#   https://dinosbs.github.io/pitch/<slug>/   je Influencerin (pitches/<slug>/index.html, aus data/pitches.json)
+# Einmalig nötig (erledigt): Repository → Settings → Pages → Source: „GitHub Actions“.
 name: Pitch auf GitHub Pages veröffentlichen
 
 on:
@@ -27,16 +29,25 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      # index.html frisch aus src/ + data/ + assets/ bauen (nur Python-Standardbibliothek)
-      - name: Seite bauen
+      # index.html und pitches/<slug>/index.html frisch aus src/ + data/ + assets/ bauen (nur Python-Standardbibliothek)
+      - name: Präsentation bauen
         run: python3 build.py
-      # Veröffentlicht wird nur die fertige, eigenständige Seite – nicht die Rohdaten
-      - name: Seite bereitstellen
+      # Veröffentlicht werden nur die fertigen, eigenständigen Seiten – nicht die Rohdaten
+      - name: Seiten bereitstellen
         run: |
+          shopt -s nullglob
           mkdir _site
           cp index.html _site/index.html
           cp assets/ui/incent-favicon.png _site/favicon.png
-          grep -q '<meta name="robots" content="noindex, nofollow">' _site/index.html
+          for d in pitches/*/; do
+            slug=$(basename "$d")
+            mkdir -p "_site/$slug"
+            cp "$d/index.html" "_site/$slug/index.html"
+            echo "/$slug/"
+          done
+          for f in _site/index.html _site/*/index.html; do
+            grep -q '<meta name="robots" content="noindex, nofollow">' "$f" || { echo "ohne noindex: $f"; exit 1; }
+          done
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
