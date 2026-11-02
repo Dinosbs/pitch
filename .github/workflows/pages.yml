@@ -1,6 +1,6 @@
 # Veröffentlicht die Pitch-Präsentation auf GitHub Pages:
-#   https://dinosbs.github.io/pitch/          allgemeine Fassung (index.html)
-#   https://dinosbs.github.io/pitch/<slug>/   je Influencerin (pitches/<slug>/index.html, aus data/pitches.json)
+#   https://dinosbs.github.io/pitch/          leitet weiter auf /pitch/beauty/ (index.html)
+#   https://dinosbs.github.io/pitch/<slug>/   je Fassung (pitches/<slug>/index.html, aus data/pitches.json): beauty, ariel61, yelizkoc
 # Einmalig nötig (erledigt): Repository → Settings → Pages → Source: „GitHub Actions“.
 name: Pitch auf GitHub Pages veröffentlichen
 
